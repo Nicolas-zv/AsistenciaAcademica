@@ -1,96 +1,86 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Editar Docente: ') }} {{ $docente->user->nombre ?? 'N/A' }}
+        </h2>
+    </x-slot>
 
-@section('content')
-    <div class="p-4 sm:p-8">
-        <h1 class="text-3xl font-extrabold text-indigo-400 mb-6 border-b border-gray-700 pb-3">
-            Editar Docente: {{ $docente->user->nombre ?? 'Sin Usuario' }}
-        </h1>
+    <div class="py-12">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
 
-        <form method="POST" action="{{ route('docentes.update', $docente) }}" 
-              class="bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700 max-w-2xl">
-            @csrf
-            @method('PUT')
+                {{-- FORMULARIO DE EDICIÓN --}}
+                <form method="POST" action="{{ route('docentes.update', $docente) }}" class="space-y-6">
+                    @csrf
+                    @method('PUT') {{-- Usar método PUT para actualizaciones RESTful --}}
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white border-b pb-3 mb-4">
+                        Datos del Perfil Docente
+                    </h3>
+                    
+                    {{-- Mostrar el usuario actual, ya que no se puede cambiar fácilmente --}}
+                    <div class="p-3 bg-gray-700 rounded-md text-sm text-gray-300">
+                        <p class="font-semibold">Usuario Asociado:</p>
+                        <p>{{ $docente->user->nombre ?? 'USUARIO NO ENCONTRADO' }} ({{ $docente->user_id }})</p>
+                    </div>
 
-                <div class="md:col-span-2">
-                    <label for="user_id" class="block text-sm font-medium text-gray-300 mb-1">Usuario a Vincular <span class="text-red-500">*</span></label>
-                    <select name="user_id" id="user_id" required 
-                            class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:border-indigo-500 focus:ring-indigo-500 @error('user_id') border-red-500 @enderror">
-                        <option value="">-- Seleccione un usuario --</option>
-                        @foreach ($usuariosDisponibles as $user)
-                            <option value="{{ $user->id }}" {{ old('user_id', $docente->user_id) == $user->id ? 'selected' : '' }}>
-                                {{ $user->nombre }} ({{ $user->correo }})
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('user_id')
-                        <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
-                    @enderror
-                </div>
+                    {{-- 1. CÓDIGO DEL DOCENTE --}}
+                    <div>
+                        <x-input-label for="codigo" :value="__('Código Docente')" />
+                        {{-- Usamos old('codigo', $docente->codigo) para precargar y mantener el valor en caso de error --}}
+                        <x-text-input id="codigo" name="codigo" type="text" class="mt-1 block w-full" :value="old('codigo', $docente->codigo)" required />
+                        <x-input-error class="mt-2" :messages="$errors->get('codigo')" />
+                    </div>
 
-                <div>
-                    <label for="codigo" class="block text-sm font-medium text-gray-300 mb-1">Código Docente (Opcional)</label>
-                    <input type="text" name="codigo" id="codigo" value="{{ old('codigo', $docente->codigo) }}" 
-                           class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:border-indigo-500 focus:ring-indigo-500 @error('codigo') border-red-500 @enderror">
-                    @error('codigo')
-                        <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
-                    @enderror
-                </div>
+                    {{-- 2. FECHA DE CONTRATO Y CARGA HORARIA --}}
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <x-input-label for="fecha_contrato" :value="__('Fecha de Contrato')" />
+                            <x-text-input id="fecha_contrato" name="fecha_contrato" type="date" class="mt-1 block w-full" :value="old('fecha_contrato', $docente->fecha_contrato?->format('Y-m-d'))" />
+                            <x-input-error class="mt-2" :messages="$errors->get('fecha_contrato')" />
+                        </div>
+                        <div>
+                            <x-input-label for="carga_horaria" :value="__('Carga Horaria (Hrs/Sem)')" />
+                            <x-text-input id="carga_horaria" name="carga_horaria" type="number" class="mt-1 block w-full" :value="old('carga_horaria', $docente->carga_horaria)" required min="1" max="40" />
+                            <x-input-error class="mt-2" :messages="$errors->get('carga_horaria')" />
+                        </div>
+                    </div>
 
-                <div>
-                    <label for="fecha_contrato" class="block text-sm font-medium text-gray-300 mb-1">Fecha Contrato (Opcional)</label>
-                    <input type="date" name="fecha_contrato" id="fecha_contrato" value="{{ old('fecha_contrato', $docente->fecha_contrato?->format('Y-m-d')) }}" 
-                           class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:border-indigo-500 focus:ring-indigo-500 @error('fecha_contrato') border-red-500 @enderror">
-                    @error('fecha_contrato')
-                        <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <div>
-                    <label for="carga_horaria" class="block text-sm font-medium text-gray-300 mb-1">Carga Horaria (Hrs/Sem) <span class="text-red-500">*</span></label>
-                    <input type="number" name="carga_horaria" id="carga_horaria" value="{{ old('carga_horaria', $docente->carga_horaria) }}" required min="0" 
-                           class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:border-indigo-500 focus:ring-indigo-500 @error('carga_horaria') border-red-500 @enderror">
-                    @error('carga_horaria')
-                        <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
-                    @enderror
-                </div>
+                    {{-- 3. ESPECIALIDAD Y CATEGORÍA --}}
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <x-input-label for="especialidad" :value="__('Especialidad')" />
+                            <x-text-input id="especialidad" name="especialidad" type="text" class="mt-1 block w-full" :value="old('especialidad', $docente->especialidad)" />
+                            <x-input-error class="mt-2" :messages="$errors->get('especialidad')" />
+                        </div>
+                        <div>
+                            <x-input-label for="categoria" :value="__('Categoría')" />
+                            <select name="categoria" id="categoria" 
+                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                <option value="" disabled>-- Seleccione Categoría --</option>
+                                {{-- Opciones de categoría con selección dinámica --}}
+                                @php $currentCat = old('categoria', $docente->categoria); @endphp
+                                @foreach (['Titular', 'Contratado', 'Interino'] as $cat)
+                                    <option value="{{ $cat }}" @selected($currentCat == $cat)>{{ $cat }}</option>
+                                @endforeach
+                            </select>
+                            <x-input-error class="mt-2" :messages="$errors->get('categoria')" />
+                        </div>
+                    </div>
 
-                <div>
-                    <label for="especialidad" class="block text-sm font-medium text-gray-300 mb-1">Especialidad (Opcional)</label>
-                    <input type="text" name="especialidad" id="especialidad" value="{{ old('especialidad', $docente->especialidad) }}" 
-                           class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:border-indigo-500 focus:ring-indigo-500 @error('especialidad') border-red-500 @enderror">
-                    @error('especialidad')
-                        <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div class="md:col-span-2">
-                    <label for="categoria" class="block text-sm font-medium text-gray-300 mb-1">Categoría (Opcional)</label>
-                    <select name="categoria" id="categoria" 
-                            class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:border-indigo-500 focus:ring-indigo-500 @error('categoria') border-red-500 @enderror">
-                        <option value="">-- Seleccione Categoría --</option>
-                        <option value="Titular" {{ old('categoria', $docente->categoria) == 'Titular' ? 'selected' : '' }}>Titular</option>
-                        <option value="Interino" {{ old('categoria', $docente->categoria) == 'Interino' ? 'selected' : '' }}>Interino</option>
-                        <option value="Invitado" {{ old('categoria', $docente->categoria) == 'Invitado' ? 'selected' : '' }}>Invitado</option>
-                        <option value="Asistente" {{ old('categoria', $docente->categoria) == 'Asistente' ? 'selected' : '' }}>Asistente</option>
-                    </select>
-                    @error('categoria')
-                        <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
-                    @enderror
-                </div>
+                    {{-- Botones de Acción --}}
+                    <div class="flex items-center justify-end mt-4 space-x-3">
+                        <x-secondary-button x-on:click.prevent="$dispatch('close')">
+                            <a href="{{ route('docentes.index') }}">{{ __('Cancelar') }}</a>
+                        </x-secondary-button>
+                        
+                        <x-primary-button class="ms-3">
+                            <i class="fa-solid fa-floppy-disk me-2"></i>
+                            {{ __('Guardar Cambios') }}
+                        </x-primary-button>
+                    </div>
+                </form>
             </div>
-            
-            <div class="flex justify-end space-x-3 mt-8 border-t border-gray-700 pt-6">
-                <a href="{{ route('docentes.index') }}" 
-                   class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-gray-600 rounded-md hover:bg-gray-600 transition duration-150">
-                    Cancelar
-                </a>
-                <button type="submit" 
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition duration-150">
-                    Actualizar Docente
-                </button>
-            </div>
-        </form>
+        </div>
     </div>
-@endsection
+</x-app-layout>

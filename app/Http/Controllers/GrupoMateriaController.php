@@ -8,6 +8,7 @@ use App\Models\Grupo;
 use App\Models\GrupoMateria;
 use App\Models\Materia;
 use App\Models\Modulo;
+use App\Models\Docente; // ⚠️ Importar el modelo Docente
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -16,12 +17,30 @@ class GrupoMateriaController extends Controller
     // Carga todos los catálogos necesarios para los formularios
     private function loadCatalogs()
     {
+        // ⚠️ Corregido: Obtenemos los IDs de los docentes en el orden deseado
+        $orderedDocenteIds = Docente::join('users', 'docentes.user_id', '=', 'users.correo') 
+                                    ->orderBy('users.nombre', 'asc') 
+                                    ->pluck('docentes.id'); // Obtener solo los IDs en el orden correcto
+
+        // 🚀 CRÍTICO: Usar whereIn para obtener los modelos con la relación 'user' precargada
+        // Esto preserva el orden y la relación para la vista.
+        $docentes = Docente::whereIn('id', $orderedDocenteIds)
+                        ->with('user') // 👈 ¡Precarga la relación 'user' para la vista!
+                        ->get()
+                        ->sortBy(function($docente) use ($orderedDocenteIds) {
+                            // Aseguramos que se mantenga el orden del join
+                            return array_search($docente->id, $orderedDocenteIds->toArray());
+                        });
+
         return [
+            // ... (Materias, Grupos, Gestiones, Aulas, Módulos)
             'materias' => Materia::orderBy('sigla')->get(),
             'grupos' => Grupo::orderBy('nombre')->get(),
             'gestiones' => Gestion::orderBy('año', 'desc')->orderBy('semestre', 'desc')->get(),
             'aulas' => Aula::with('modulo')->orderBy('numero')->get(),
             'modulos' => Modulo::orderBy('nombre')->get(),
+            
+            'docentes' => $docentes, // 👈 Pasar la colección corregida
         ];
     }
 
@@ -31,7 +50,8 @@ class GrupoMateriaController extends Controller
     public function index()
     {
         // Carga las relaciones principales para la tabla
-        $grupoMaterias = GrupoMateria::with(['materia', 'grupo', 'gestion', 'aula', 'modulo'])
+        // ⚠️ MODIFICADO: Incluir la relación 'docente'
+        $grupoMaterias = GrupoMateria::with(['materia', 'grupo', 'gestion', 'aula', 'modulo', 'docente'])
             ->orderBy('gestion_id', 'desc')
             ->get();
 
@@ -56,12 +76,16 @@ class GrupoMateriaController extends Controller
             'materia_id' => 'required|exists:materias,id',
             'grupo_id' => 'required|exists:grupos,id',
             'gestion_id' => 'required|exists:gestion,id',
+            
+            'docente_id' => 'nullable|exists:docentes,id', // ⚠️ Validación del Docente
+            
             'aula_id' => 'nullable|exists:aulas,id',
             'modulo_id' => 'nullable|exists:modulos,id',
             'turno' => ['nullable', 'string', Rule::in(['Mañana', 'Tarde', 'Noche'])],
             'cupo' => 'nullable|integer|min:1',
             'estado' => ['required', 'string', Rule::in(['activo', 'inactivo', 'cerrado'])],
-            // Regla de unicidad combinada
+            
+            // Regla de unicidad combinada (se repite materia_id para la regla de unicidad)
             'materia_id' => Rule::unique('grupo_materia')->where(function ($query) use ($request) {
                 return $query->where('grupo_id', $request->grupo_id)
                              ->where('gestion_id', $request->gestion_id);
@@ -73,7 +97,7 @@ class GrupoMateriaController extends Controller
         GrupoMateria::create($request->all());
 
         return redirect()->route('grupo_materia.index')
-                         ->with('success', 'El Grupo-Materia ha sido registrado exitosamente.');
+                            ->with('success', 'El Grupo-Materia ha sido registrado exitosamente.');
     }
 
     /**
@@ -105,11 +129,15 @@ class GrupoMateriaController extends Controller
             'materia_id' => 'required|exists:materias,id',
             'grupo_id' => 'required|exists:grupos,id',
             'gestion_id' => 'required|exists:gestion,id',
+
+            'docente_id' => 'nullable|exists:docentes,id', // ⚠️ Validación del Docente
+            
             'aula_id' => 'nullable|exists:aulas,id',
             'modulo_id' => 'nullable|exists:modulos,id',
             'turno' => ['nullable', 'string', Rule::in(['Mañana', 'Tarde', 'Noche'])],
             'cupo' => 'nullable|integer|min:1',
             'estado' => ['required', 'string', Rule::in(['activo', 'inactivo', 'cerrado'])],
+            
             // Regla de unicidad combinada, excluyendo el registro actual
             'materia_id' => Rule::unique('grupo_materia')->ignore($grupoMateria->id)->where(function ($query) use ($request) {
                 return $query->where('grupo_id', $request->grupo_id)
@@ -122,7 +150,7 @@ class GrupoMateriaController extends Controller
         $grupoMateria->update($request->all());
 
         return redirect()->route('grupo_materia.index')
-                         ->with('success', 'El Grupo-Materia ha sido actualizado exitosamente.');
+                            ->with('success', 'El Grupo-Materia ha sido actualizado exitosamente.');
     }
 
     /**
@@ -137,6 +165,6 @@ class GrupoMateriaController extends Controller
         $grupoMateria->delete();
 
         return redirect()->route('grupo_materia.index')
-                         ->with('success', "La combinación {$materiaNombre}-{$grupoNombre} ({$gestion}) ha sido eliminada.");
+                            ->with('success', "La combinación {$materiaNombre}-{$grupoNombre} ({$gestion}) ha sido eliminada.");
     }
 }

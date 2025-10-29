@@ -13,8 +13,7 @@ class ModulosSeeder extends Seeder
         $now = Carbon::now();
 
         DB::table('modulos')->insert([
-            ['nombre' => 'Bloque A', 'codigo' => 'A', 'created_at' => $now, 'updated_at' => $now],
-            ['nombre' => 'Bloque B', 'codigo' => 'B', 'created_at' => $now, 'updated_at' => $now],
+            ['nombre' => 'Facultad de Ingeniería en Ciencias de la Comunicacion y telecomunicaciones', 'codigo' => '236', 'created_at' => $now, 'updated_at' => $now],
         ]);
     }
 }

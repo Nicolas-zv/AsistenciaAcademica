@@ -62,4 +62,8 @@ class GrupoMateria extends Model
     {
         return $this->belongsTo(Modulo::class);
     }
+    public function docente()
+    {
+        return $this->belongsTo(Docente::class, 'docente_id');
+    }
 }

@@ -47,6 +47,7 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
+        dd($user);
         $roles = Role::pluck('nombre', 'id');
         return view('users.edit', compact('user', 'roles'));
     }

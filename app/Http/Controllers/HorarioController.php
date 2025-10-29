@@ -57,9 +57,12 @@ class HorarioController extends Controller
     /**
      * Almacena un recurso recién creado en el almacenamiento.
      */
+/**
+     * Almacena un recurso recién creado en el almacenamiento.
+     */
     public function store(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'grupo_materia_id' => 'required|exists:grupo_materia,id',
             'dia' => ['required', 'integer', Rule::in(array_keys($this->dias))],
             'hora_inicio' => 'required|date_format:H:i',
@@ -68,7 +71,17 @@ class HorarioController extends Controller
             'estado' => ['required', 'string', Rule::in(['programado', 'vigente', 'cancelado'])],
         ]);
 
-        Horario::create($request->all());
+        // 1. Obtener los IDs de Aula y Docente del GrupoMateria seleccionado
+        $grupoMateria = GrupoMateria::with(['aula', 'docente'])->findOrFail($validatedData['grupo_materia_id']);
+        
+        $aulaId = $grupoMateria->aula_id;
+        $docenteId = $grupoMateria->docente_id;
+        
+        // 2. Ejecutar la validación de colisión de Aula y Docente
+        $this->checkCollision($validatedData['dia'], $validatedData['hora_inicio'], $validatedData['hora_fin'], $aulaId, $docenteId);
+
+        // Si no hay colisión, crea el horario
+        Horario::create($validatedData);
 
         return redirect()->route('horarios.index')
                          ->with('success', 'El horario ha sido creado exitosamente.');
@@ -104,9 +117,12 @@ class HorarioController extends Controller
     /**
      * Actualiza el recurso especificado en el almacenamiento.
      */
+    /**
+     * Actualiza el recurso especificado en el almacenamiento.
+     */
     public function update(Request $request, Horario $horario)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'grupo_materia_id' => 'required|exists:grupo_materia,id',
             'dia' => ['required', 'integer', Rule::in(array_keys($this->dias))],
             'hora_inicio' => 'required|date_format:H:i',
@@ -115,7 +131,17 @@ class HorarioController extends Controller
             'estado' => ['required', 'string', Rule::in(['programado', 'vigente', 'cancelado'])],
         ]);
 
-        $horario->update($request->all());
+        // 1. Obtener los IDs de Aula y Docente del GrupoMateria seleccionado
+        $grupoMateria = GrupoMateria::with(['aula', 'docente'])->findOrFail($validatedData['grupo_materia_id']);
+        
+        $aulaId = $grupoMateria->aula_id;
+        $docenteId = $grupoMateria->docente_id;
+        
+        // 2. Ejecutar la validación de colisión de Aula y Docente, excluyendo el ID actual
+        $this->checkCollision($validatedData['dia'], $validatedData['hora_inicio'], $validatedData['hora_fin'], $aulaId, $docenteId, $horario->id);
+        
+        // Si no hay colisión, actualiza el horario
+        $horario->update($validatedData);
 
         return redirect()->route('horarios.index')
                          ->with('success', 'El horario ha sido actualizado exitosamente.');
@@ -130,5 +156,61 @@ class HorarioController extends Controller
 
         return redirect()->route('horarios.index')
                          ->with('success', 'El horario para ' . $horario->grupoMateria->materia->sigla . ' ha sido eliminado correctamente.');
+    }
+    /**
+     * Verifica si existe una colisión de horario (aula o docente)
+     * @param int $dia El día de la semana (Lunes=1, etc.)
+     * @param string $inicio Hora de inicio 'H:i'
+     * @param string $fin Hora de fin 'H:i'
+     * @param int|null $aulaId ID del aula a verificar
+     * @param int|null $docenteId ID del docente a verificar
+     * @param int|null $exceptId ID del horario actual a ignorar (para el update)
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    private function checkCollision($dia, $inicio, $fin, $aulaId = null, $docenteId = null, $exceptId = null)
+    {
+        // 1. Colisión de Aula (El mismo aula está ocupada a esa hora)
+        if ($aulaId) {
+            $colisionAula = Horario::where('dia', $dia)
+                // Obtenemos los GrupoMateria que usan la misma Aula
+                ->whereHas('grupoMateria', function ($query) use ($aulaId) {
+                    $query->where('aula_id', $aulaId);
+                })
+                // Regla de solapamiento: (A_inicio < B_fin) AND (A_fin > B_inicio)
+                ->where('hora_inicio', '<', $fin)
+                ->where('hora_fin', '>', $inicio)
+                ->when($exceptId, function ($query) use ($exceptId) {
+                    return $query->where('id', '!=', $exceptId);
+                })
+                ->first();
+            
+            if ($colisionAula) {
+                $nombreDia = $this->dias[$dia];
+                $errorMsg = "El Aula N° {$colisionAula->grupoMateria->aula->numero} ya está ocupada el {$nombreDia} de {$colisionAula->hora_inicio} a {$colisionAula->hora_fin} por la materia {$colisionAula->grupoMateria->materia->sigla}.";
+                throw \Illuminate\Validation\ValidationException::withMessages(['grupo_materia_id' => $errorMsg]);
+            }
+        }
+
+        // 2. Colisión de Docente (El mismo docente está ocupado a esa hora)
+        if ($docenteId) {
+            $colisionDocente = Horario::where('dia', $dia)
+                // Obtenemos los GrupoMateria que tienen asignado al mismo Docente
+                ->whereHas('grupoMateria', function ($query) use ($docenteId) {
+                    $query->where('docente_id', $docenteId);
+                })
+                // Regla de solapamiento
+                ->where('hora_inicio', '<', $fin)
+                ->where('hora_fin', '>', $inicio)
+                ->when($exceptId, function ($query) use ($exceptId) {
+                    return $query->where('id', '!=', $exceptId);
+                })
+                ->first();
+
+            if ($colisionDocente) {
+                $nombreDia = $this->dias[$dia];
+                $errorMsg = "El Docente ya está ocupado el {$nombreDia} de {$colisionDocente->hora_inicio} a {$colisionDocente->hora_fin} con la materia {$colisionDocente->grupoMateria->materia->sigla}.";
+                throw \Illuminate\Validation\ValidationException::withMessages(['grupo_materia_id' => $errorMsg]);
+            }
+        }
     }
 }

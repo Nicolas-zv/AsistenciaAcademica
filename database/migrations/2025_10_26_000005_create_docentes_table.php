@@ -9,8 +9,11 @@ return new class extends Migration {
     {
         Schema::create('docentes', function (Blueprint $table) {
             $table->bigIncrements('id');
-            // Relación 0..1 con usuarios (un usuario puede tener 0 o 1 perfil docente)
-            $table->unsignedBigInteger('user_id')->nullable()->unique();
+            
+            // 🛑 CRÍTICO: CAMBIO 1 - Usar STRING en lugar de unsignedBigInteger
+            // Debe ser de tipo STRING para almacenar el correo electrónico.
+            $table->string('user_id')->unique(); 
+            
             $table->string('codigo')->nullable()->unique();
             $table->date('fecha_contrato')->nullable();
             $table->integer('carga_horaria')->default(0);
@@ -18,7 +21,12 @@ return new class extends Migration {
             $table->string('categoria')->nullable();
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
+            // 🛑 CRÍTICO: CAMBIO 2 - Referenciar la columna 'correo' de la tabla 'users'
+            $table->foreign('user_id')
+                  ->references('correo') // <-- ¡Apunta a 'correo', no a 'id'!
+                  ->on('users')
+                  ->onUpdate('cascade')
+                  ->onDelete('restrict'); // Mejor usar 'restrict' o 'nullify' para evitar borrar el usuario completo
         });
     }
 

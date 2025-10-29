@@ -13,9 +13,9 @@ class GruposSeeder extends Seeder
         $now = Carbon::now();
 
         DB::table('grupos')->insert([
-            ['nombre' => 'G1', 'descripcion' => 'Grupo 1', 'created_at' => $now, 'updated_at' => $now],
-            ['nombre' => 'G2', 'descripcion' => 'Grupo 2', 'created_at' => $now, 'updated_at' => $now],
-            ['nombre' => 'G3', 'descripcion' => 'Grupo 3', 'created_at' => $now, 'updated_at' => $now],
+            ['nombre' => 'SA', 'descripcion' => 'Grupo 1', 'created_at' => $now, 'updated_at' => $now],
+            ['nombre' => 'SB', 'descripcion' => 'Grupo 2', 'created_at' => $now, 'updated_at' => $now],
+            ['nombre' => 'SC', 'descripcion' => 'Grupo 3', 'created_at' => $now, 'updated_at' => $now],
         ]);
     }
 }

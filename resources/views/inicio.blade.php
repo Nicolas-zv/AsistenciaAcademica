@@ -126,7 +126,7 @@
             
             {{-- Pie de Página Simple --}}
             <div class="text-sm text-gray-500 mt-16">
-                Sistema desarrollado para la Facultad de Ingeniería de Ciencias de la Computación y Telecomunicaciones (FICCT).
+                Sistema desarrollado para la Facultad de Ingeniería en Ciencias de la Computación y Telecomunicaciones (FICCT).
             </div>
 
         </div>

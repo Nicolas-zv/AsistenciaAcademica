@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use Illuminate\Http\Request;
-
+use App\Models\Permission;
 class RoleController extends Controller
 {
     public function index()
@@ -38,7 +38,18 @@ class RoleController extends Controller
 
     public function edit(Role $role)
     {
-        return view('roles.edit', compact('role'));
+        // 1. Aquí se usa el MODELO 'Permission' (la clase) para consultar la tabla 'permisos'.
+        $permisos = Permission::all(); 
+
+        // 2. Obtiene los IDs de los permisos ya asignados al rol
+        $rolePermissions = $role->permissions->pluck('id')->toArray();
+
+        // 3. Pasa la colección de permisos a la vista.
+        return view('roles.edit', [
+            'role' => $role,
+            'permisos' => $permisos, // <-- ¡Esto resuelve el error en la vista!
+            'rolePermissions' => $rolePermissions,
+        ]);
     }
 
     public function update(Request $request, Role $role)

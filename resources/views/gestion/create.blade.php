@@ -1,83 +1,96 @@
-@extends('layouts.app')
+{{-- resources/views/gestion/create.blade.php (ADAPTADO) --}}
 
-@section('header', 'Crear Nueva Gestión')
+{{-- 1. Usa el componente de layout de Breeze --}}
+<x-app-layout>
+    
+    {{-- 2. Define el encabezado de la página (slot 'header') --}}
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            Registrar Gestión Académica
+        </h2>
+    </x-slot>
 
-@section('content')
-    <div class="p-4 sm:p-8">
-        <h1 class="text-3xl font-extrabold text-white mb-6 border-b border-gray-700 pb-3">
-            Registrar Nueva Gestión Académica
-        </h1>
+    {{-- 3. Contenido Principal (dentro de un contenedor de Tailwind) --}}
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="p-4 sm:p-8">
 
-        <div class="bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700 max-w-3xl mx-auto">
-            
-            <form action="{{ route('gestion.store') }}" method="POST">
-                @csrf
+                <h1 class="text-3xl font-extrabold text-indigo-400 dark:text-white mb-6 border-b border-gray-700 pb-3">
+                    Registrar **Nueva Gestión Académica**
+                </h1>
 
-                <div class="space-y-6">
+                <div class="bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700 max-w-3xl mx-auto">
                     
-                    {{-- Año y Semestre (en una fila) --}}
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label for="año" class="block text-sm font-medium text-gray-300 mb-1">Año (*)</label>
-                            <input type="number" name="año" id="año" min="2000" max="{{ date('Y') + 1 }}" 
-                                   class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('año') border-red-500 @enderror" 
-                                   value="{{ old('año', date('Y')) }}" required autofocus>
-                            @error('año')
-                                <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
-                            @enderror
+                    <form action="{{ route('gestion.store') }}" method="POST">
+                        @csrf
+
+                        <div class="space-y-6">
+                            
+                            {{-- Año y Semestre (en una fila) --}}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="año" class="block text-sm font-medium text-gray-300 mb-1">Año (*)</label>
+                                    <input type="number" name="año" id="año" min="2000" max="{{ date('Y') + 1 }}" 
+                                           class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('año') border-red-500 @enderror" 
+                                           value="{{ old('año', date('Y')) }}" required autofocus>
+                                    @error('año')
+                                        <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label for="semestre" class="block text-sm font-medium text-gray-300 mb-1">Semestre</label>
+                                    <select name="semestre" id="semestre"
+                                            class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('semestre') border-red-500 @enderror">
+                                        <option value="" {{ old('semestre') == '' ? 'selected' : '' }}>-- No Aplica --</option>
+                                        <option value="I" {{ old('semestre') == 'I' ? 'selected' : '' }}>I</option>
+                                        <option value="II" {{ old('semestre') == 'II' ? 'selected' : '' }}>II</option>
+                                        <option value="Verano" {{ old('semestre') == 'Verano' ? 'selected' : '' }}>Verano</option>
+                                    </select>
+                                    @error('semestre')
+                                        <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+                            
+                            {{-- Estado --}}
+                            <div>
+                                <label for="estado" class="block text-sm font-medium text-gray-300 mb-1">Estado (*)</label>
+                                <select name="estado" id="estado" required
+                                        class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('estado') border-red-500 @enderror">
+                                    <option value="inactiva" {{ old('estado') == 'inactiva' ? 'selected' : '' }}>Inactiva</option>
+                                    <option value="activa" {{ old('estado') == 'activa' ? 'selected' : '' }}>Activa (La anterior gestión activa se desactivará)</option>
+                                </select>
+                                @error('estado')
+                                    <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Descripción --}}
+                            <div>
+                                <label for="descripcion" class="block text-sm font-medium text-gray-300 mb-1">Descripción / Notas</label>
+                                <textarea name="descripcion" id="descripcion" rows="3"
+                                          class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('descripcion') border-red-500 @enderror">{{ old('descripcion') }}</textarea>
+                                @error('descripcion')
+                                    <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+
                         </div>
-                        <div>
-                            <label for="semestre" class="block text-sm font-medium text-gray-300 mb-1">Semestre</label>
-                            <select name="semestre" id="semestre"
-                                    class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('semestre') border-red-500 @enderror">
-                                <option value="" {{ old('semestre') == '' ? 'selected' : '' }}>-- No Aplica --</option>
-                                <option value="I" {{ old('semestre') == 'I' ? 'selected' : '' }}>I</option>
-                                <option value="II" {{ old('semestre') == 'II' ? 'selected' : '' }}>II</option>
-                                <option value="Verano" {{ old('semestre') == 'Verano' ? 'selected' : '' }}>Verano</option>
-                            </select>
-                            @error('semestre')
-                                <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
-                            @enderror
+
+                        {{-- Botones de Acción --}}
+                        <div class="mt-8 flex justify-end space-x-4 border-t border-gray-700 pt-6">
+                            <a href="{{ route('gestion.index') }}" 
+                               class="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-gray-600 rounded-md hover:bg-gray-600 transition duration-150">
+                                Cancelar
+                            </a>
+                            <button type="submit" 
+                                    class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition duration-150 shadow-md">
+                                <i class="fa-solid fa-calendar-plus mr-2"></i> Guardar Gestión
+                            </button>
                         </div>
-                    </div>
-                    
-                    {{-- Estado --}}
-                    <div>
-                        <label for="estado" class="block text-sm font-medium text-gray-300 mb-1">Estado (*)</label>
-                        <select name="estado" id="estado" required
-                                class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('estado') border-red-500 @enderror">
-                            <option value="inactiva" {{ old('estado') == 'inactiva' ? 'selected' : '' }}>Inactiva</option>
-                            <option value="activa" {{ old('estado') == 'activa' ? 'selected' : '' }}>Activa (La anterior gestión activa se desactivará)</option>
-                        </select>
-                        @error('estado')
-                            <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    {{-- Descripción --}}
-                    <div>
-                        <label for="descripcion" class="block text-sm font-medium text-gray-300 mb-1">Descripción / Notas</label>
-                        <textarea name="descripcion" id="descripcion" rows="3"
-                                  class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('descripcion') border-red-500 @enderror">{{ old('descripcion') }}</textarea>
-                        @error('descripcion')
-                            <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
-                        @enderror
-                    </div>
-
+                    </form>
                 </div>
-
-                {{-- Botones de Acción --}}
-                <div class="mt-8 flex justify-end space-x-4">
-                    <a href="{{ route('gestion.index') }}" 
-                       class="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-gray-600 rounded-md hover:bg-gray-600 transition duration-150">
-                        Cancelar
-                    </a>
-                    <button type="submit" 
-                            class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition duration-150 shadow-md">
-                        <i class="fa-solid fa-save mr-2"></i> Guardar Gestión
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
-@endsection
+</x-app-layout>

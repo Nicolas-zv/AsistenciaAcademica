@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         // orden importante según dependencias
         $this->call([
+            
             RolesSeeder::class,
             PermisosSeeder::class,
             RolPermisosSeeder::class,
