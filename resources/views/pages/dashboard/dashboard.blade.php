@@ -1,5 +1,3 @@
-{{-- resources/views/pages/dashboard/dashboard.blade.php --}}
-
 <x-app-layout>
     {{-- 1. HEADER: Pasa el título al slot $header --}}
     <x-slot name="header">
@@ -12,17 +10,20 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            {{-- Inicio del contenido que antes estaba en @section('content') --}}
+            {{-- Inicio del contenido --}}
             <div class="p-4 sm:p-8">
                 <h1 class="text-3xl font-extrabold text-white mb-6">
                     Resumen General del Sistema
                 </h1>
 
                 {{-- GRID DE TARJETAS DE RESUMEN (4 Columnas) --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                {{-- ⭐ CORRECCIÓN: Se añade items-stretch para forzar la altura igual en todas las tarjetas --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 items-stretch">
 
                     {{-- Tarjeta 1: Docentes --}}
-                    <div class="bg-gray-800 p-5 rounded-lg shadow-lg border border-indigo-700/50 flex items-center justify-between transition hover:bg-gray-700/50">
+                    {{-- ⭐ CORRECCIÓN: Se asegura la clase h-full --}}
+                    <a href="{{ route('docentes.index') }}" 
+                        class="bg-gray-800 p-5 rounded-lg shadow-lg border border-indigo-700/50 flex items-center justify-between h-full transition hover:bg-indigo-900/40 hover:scale-[1.02]">
                         <div>
                             <p class="text-sm font-medium text-indigo-400 uppercase">Docentes</p>
                             <p class="text-3xl font-bold text-white mt-1">
@@ -30,10 +31,12 @@
                             </p>
                         </div>
                         <i class="fa-solid fa-user-tie text-4xl text-indigo-500 opacity-60"></i>
-                    </div>
+                    </a>
 
                     {{-- Tarjeta 2: Usuarios --}}
-                    <div class="bg-gray-800 p-5 rounded-lg shadow-lg border border-yellow-700/50 flex items-center justify-between transition hover:bg-gray-700/50">
+                    {{-- ⭐ CORRECCIÓN: Se asegura la clase h-full --}}
+                    <a href="{{ route('users.index') }}"
+                        class="bg-gray-800 p-5 rounded-lg shadow-lg border border-yellow-700/50 flex items-center justify-between h-full transition hover:bg-yellow-900/40 hover:scale-[1.02]">
                         <div>
                             <p class="text-sm font-medium text-yellow-400 uppercase">Usuarios</p>
                             <p class="text-3xl font-bold text-white mt-1">
@@ -41,10 +44,12 @@
                             </p>
                         </div>
                         <i class="fa-solid fa-user-group text-4xl text-yellow-500 opacity-60"></i>
-                    </div>
+                    </a>
 
                     {{-- Tarjeta 3: Materias --}}
-                    <div class="bg-gray-800 p-5 rounded-lg shadow-lg border border-green-700/50 flex items-center justify-between transition hover:bg-gray-700/50">
+                    {{-- ⭐ CORRECCIÓN: Se asegura la clase h-full --}}
+                    <a href="{{ route('materias.index') }}"
+                        class="bg-gray-800 p-5 rounded-lg shadow-lg border border-green-700/50 flex items-center justify-between h-full transition hover:bg-green-900/40 hover:scale-[1.02]">
                         <div>
                             <p class="text-sm font-medium text-green-400 uppercase">Materias</p>
                             <p class="text-3xl font-bold text-white mt-1">
@@ -52,43 +57,28 @@
                             </p>
                         </div>
                         <i class="fa-solid fa-book-open text-4xl text-green-500 opacity-60"></i>
-                    </div>
+                    </a>
 
-                    {{-- Tarjeta 4: Reportes Pendientes --}}
-                    <div class="bg-gray-800 p-5 rounded-lg shadow-lg border border-red-700/50 flex items-center justify-between transition hover:bg-gray-700/50">
+                    {{-- Tarjeta 4: Asistencias Pendientes --}}
+                    {{-- ⭐ CORRECCIÓN: Se asegura la clase h-full --}}
+                    <a href="{{ route('reportes.index') }}" title="Ver Asistencias Pendientes de Gestión" 
+                        class="bg-gray-800 p-5 rounded-lg shadow-lg border border-red-700/50 flex items-center justify-between h-full transition hover:bg-red-900/40 hover:scale-[1.02]">
                         <div>
-                            <p class="text-sm font-medium text-red-400 uppercase">Reportes Pendientes</p>
-                            <p class="text-3xl font-bold text-white mt-1">5</p>
+                            <p class="text-sm font-medium text-red-400 uppercase">Asistencias Pendientes</p>
+                            <p class="text-3xl font-bold text-white mt-1">
+                                {{ $reportesPendientesCount }} 
+                            </p>
                         </div>
                         <i class="fa-solid fa-triangle-exclamation text-4xl text-red-500 opacity-60"></i>
-                    </div>
+                    </a>
                 </div>
-
-
+                {{-- NOTA: Se eliminó un bloque grid duplicado aquí --}}
+                
                 {{-- SECCIÓN INFERIOR: GRUPO DE 3 COLUMNAS --}}
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                     {{-- COLUMNA 1 y 2: LOGO INSTITUCIONAL (OCUPA 2/3) --}}
-                    {{-- <div class="lg:col-span-2 bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700"> --}}
-
-                        {{-- Bloque de Título Centrado y Separado --}}
-                        {{-- <div class="text-center border-b border-gray-700 pb-3 mb-4">
-                            <h2 class="text-2xl font-extrabold text-indigo-400">
-                                Logo Institucional
-                            </h2>
-                            <p class="text-sm text-gray-400 mt-1">Facultad de Ingeniería en Ciencias de la Computación y Telecomunicaciones</p>
-                        </div> --}}
-
-                        {{-- Bloque de la Imagen del Logo --}}
-                        {{-- <div class="flex justify-center items-center h-15"> 
-                            <img src="{{ asset('images/Escudo_FICCT.png') }}" 
-                                alt="Escudo FICCT" 
-                                class="w-15 h-15 object-contain"
-                            >
-                        </div>
-
-                    </div> --}}
-                    {{-- FIN COLUMNA 1 y 2 --}}
+                    {{-- ELIMINADO PARA LIMPIEZA DE CÓDIGO --}}
 
 
                     {{-- COLUMNA 3: DESARROLLADORES DEL SISTEMA (OCUPA 1/3) --}}

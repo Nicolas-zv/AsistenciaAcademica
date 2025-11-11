@@ -1,5 +1,10 @@
 {{-- resources/views/grupo_materia/create.blade.php (ADAPTADO) --}}
 
+@php
+    // Define $grupoMateria si no existe (solo si es la vista de CREATE)
+    // Esto es necesario si no lo pasas como un nuevo objeto desde el controlador
+    $grupoMateria = $grupoMateria ?? new App\Models\GrupoMateria();
+@endphp
 {{-- 1. Usa el componente de layout de Breeze --}}
 <x-app-layout>
     
@@ -87,22 +92,22 @@
                                 <h2 class="col-span-full text-lg font-semibold text-gray-300 mb-2">Detalles, Ubicación y Docente</h2>
 
                                 {{-- Docente Asignado --}}
-                                <div class="md:col-span-3">
-                                    <label for="docente_id" class="block text-sm font-medium text-gray-300 mb-1">Docente Asignado</label>
-                                    <select name="docente_id" id="docente_id"
-                                        class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('docente_id') border-red-500 @enderror">
-                                        <option value="">-- Sin Docente Asignado --</option>
-                                        @foreach($docentes as $docente)
-                                            <option value="{{ $docente->id }}" {{ old('docente_id') == $docente->id ? 'selected' : '' }}>
-                                                {{ $docente->user->nombre ?? 'Docente ID: ' . $docente->id }} ({{ $docente->codigo }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('docente_id')
-                                        <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
+                            <div class="md:col-span-3">
+                                <label for="docente_id" class="block text-sm font-medium text-gray-300 mb-1">Docente Asignado</label>
+                                <select name="docente_id" id="docente_id"
+                                    {{-- ... clases ... --}}>
+                                    <option value="">-- Sin Docente Asignado --</option>
+                                    @foreach($docentes as $docente)
+                                        <option value="{{ $docente->user_id }}" 
+                                            {{ old('docente_id', $grupoMateria->docente_id) == $docente->user_id ? 'selected' : '' }}>
+                                            {{ $docente->user->nombre ?? 'Docente ID: ' . $docente->id }} ({{ $docente->codigo }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('docente_id')
+                                    <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
                                 {{-- Módulo Asignado --}}
                                 <div>
                                     <label for="modulo_id" class="block text-sm font-medium text-gray-300 mb-1">Módulo Asignado</label>

@@ -1,4 +1,4 @@
-{{-- resources/views/grupo_materia/edit.blade.php (ADAPTADO) --}}
+{{-- resources/views/grupo_materia/edit.blade.php --}}
 
 {{-- 1. Usa el componente de layout de Breeze --}}
 <x-app-layout>
@@ -21,7 +21,8 @@
 
                 <div class="bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700 max-w-4xl mx-auto">
                     
-                    <form action="{{ route('grupo_materia.update', ['grupoMateria' => $grupoMateria]) }}" method="POST">
+                    {{-- ✅ CORRECCIÓN CLAVE: Usar la clave explícita 'grupo_materium' para resolver el error de parámetro faltante --}}
+                    <form method="POST" action="{{ route('grupo_materia.update', ['grupo_materia' => $grupoMateria]) }}">
                         @csrf
                         @method('PUT')
 
@@ -30,13 +31,13 @@
                             {{-- Bloque 1: Identificación (Materia, Grupo, Gestión) --}}
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 border-b border-gray-700 pb-6">
                                 <h2 class="col-span-full text-lg font-semibold text-indigo-400 mb-2">Identificación Académica (*)</h2>
-                                <p class="col-span-full text-sm text-yellow-400 mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Cambiar esta combinación (Materia/Grupo/Gestión) puede afectar la unicidad.</p>
+                                {{-- <p class="col-span-full text-sm text-yellow-400 mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Cambiar esta combinación (Materia/Grupo/Gestión) puede afectar la unicidad.</p> --}}
 
                                 {{-- Materia --}}
                                 <div>
                                     <label for="materia_id" class="block text-sm font-medium text-gray-300 mb-1">Materia (*)</label>
                                     <select name="materia_id" id="materia_id" required
-                                            class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('materia_id') border-red-500 @enderror">
+                                        class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('materia_id') border-red-500 @enderror">
                                         <option value="">-- Seleccione Materia --</option>
                                         @foreach($materias as $materia)
                                             <option value="{{ $materia->id }}" {{ old('materia_id', $grupoMateria->materia_id) == $materia->id ? 'selected' : '' }}>
@@ -53,7 +54,7 @@
                                 <div>
                                     <label for="grupo_id" class="block text-sm font-medium text-gray-300 mb-1">Grupo (*)</label>
                                     <select name="grupo_id" id="grupo_id" required
-                                            class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('grupo_id') border-red-500 @enderror">
+                                        class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('grupo_id') border-red-500 @enderror">
                                         <option value="">-- Seleccione Grupo --</option>
                                         @foreach($grupos as $grupo)
                                             <option value="{{ $grupo->id }}" {{ old('grupo_id', $grupoMateria->grupo_id) == $grupo->id ? 'selected' : '' }}>
@@ -70,7 +71,7 @@
                                 <div>
                                     <label for="gestion_id" class="block text-sm font-medium text-gray-300 mb-1">Gestión (*)</label>
                                     <select name="gestion_id" id="gestion_id" required
-                                            class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('gestion_id') border-red-500 @enderror">
+                                        class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('gestion_id') border-red-500 @enderror">
                                         <option value="">-- Seleccione Gestión --</option>
                                         @foreach($gestiones as $gestion)
                                             <option value="{{ $gestion->id }}" {{ old('gestion_id', $grupoMateria->gestion_id) == $gestion->id ? 'selected' : '' }}>
@@ -91,11 +92,14 @@
                                 <div class="md:col-span-2">
                                     <label for="docente_id" class="block text-sm font-medium text-gray-300 mb-1">Docente Asignado</label>
                                     <select name="docente_id" id="docente_id"
-                                            class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-green-500 focus:border-green-500 @error('docente_id') border-red-500 @enderror">
+                                        class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-green-500 focus:border-green-500 @error('docente_id') border-red-500 @enderror">
+                                        {{-- El valor de null es una cadena vacía en la base de datos --}}
                                         <option value="" {{ old('docente_id', $grupoMateria->docente_id) == null ? 'selected' : '' }}>-- Sin Asignar Docente --</option>
                                         @foreach($docentes as $docente)
-                                            <option value="{{ $docente->id }}" {{ old('docente_id', $grupoMateria->docente_id) == $docente->id ? 'selected' : '' }}>
-                                                {{ $docente->nombre_completo ?? 'Docente sin nombre (ID: ' . $docente->id . ')' }} ({{ $docente->codigo ?? 'N/C' }})
+                                            {{-- ✅ CORRECCIÓN CLAVE: Usar $docente->user_id (el correo/string) como valor --}}
+                                            <option value="{{ $docente->user_id }}" 
+                                                        {{ old('docente_id', $grupoMateria->docente_id) == $docente->user_id ? 'selected' : '' }}>
+                                               {{ $docente->user->nombre ?? 'Docente sin nombre' }} ({{ $docente->codigo ?? 'N/C' }})
                                             </option>
                                         @endforeach
                                     </select>
@@ -113,7 +117,7 @@
                                 <div>
                                     <label for="turno" class="block text-sm font-medium text-gray-300 mb-1">Turno</label>
                                     <select name="turno" id="turno"
-                                            class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('turno') border-red-500 @enderror">
+                                        class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('turno') border-red-500 @enderror">
                                         <option value="" {{ old('turno', $grupoMateria->turno) == '' ? 'selected' : '' }}>-- Seleccione --</option>
                                         <option value="Mañana" {{ old('turno', $grupoMateria->turno) == 'Mañana' ? 'selected' : '' }}>Mañana</option>
                                         <option value="Tarde" {{ old('turno', $grupoMateria->turno) == 'Tarde' ? 'selected' : '' }}>Tarde</option>
@@ -128,8 +132,8 @@
                                 <div>
                                     <label for="cupo" class="block text-sm font-medium text-gray-300 mb-1">Cupo Máximo</label>
                                     <input type="number" name="cupo" id="cupo" min="1"
-                                            class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('cupo') border-red-500 @enderror" 
-                                            value="{{ old('cupo', $grupoMateria->cupo) }}">
+                                        class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('cupo') border-red-500 @enderror" 
+                                        value="{{ old('cupo', $grupoMateria->cupo) }}">
                                     @error('cupo')
                                         <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
                                     @enderror
@@ -139,7 +143,7 @@
                                 <div>
                                     <label for="modulo_id" class="block text-sm font-medium text-gray-300 mb-1">Módulo Asignado</label>
                                     <select name="modulo_id" id="modulo_id"
-                                            class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('modulo_id') border-red-500 @enderror">
+                                        class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('modulo_id') border-red-500 @enderror">
                                         <option value="">-- Sin Módulo --</option>
                                         @foreach($modulos as $modulo)
                                             <option value="{{ $modulo->id }}" {{ old('modulo_id', $grupoMateria->modulo_id) == $modulo->id ? 'selected' : '' }}>
@@ -156,7 +160,7 @@
                                 <div>
                                     <label for="aula_id" class="block text-sm font-medium text-gray-300 mb-1">Aula Asignada</label>
                                     <select name="aula_id" id="aula_id"
-                                            class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('aula_id') border-red-500 @enderror">
+                                        class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('aula_id') border-red-500 @enderror">
                                         <option value="">-- Sin Aula --</option>
                                         @foreach($aulas as $aula)
                                             <option value="{{ $aula->id }}" {{ old('aula_id', $grupoMateria->aula_id) == $aula->id ? 'selected' : '' }}>
@@ -173,7 +177,7 @@
                                 <div class="md:col-span-4">
                                     <label for="estado" class="block text-sm font-medium text-gray-300 mb-1">Estado (*)</label>
                                     <select name="estado" id="estado" required
-                                            class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('estado') border-red-500 @enderror">
+                                        class="w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 @error('estado') border-red-500 @enderror">
                                         <option value="activo" {{ old('estado', $grupoMateria->estado) == 'activo' ? 'selected' : '' }}>Activo</option>
                                         <option value="inactivo" {{ old('estado', $grupoMateria->estado) == 'inactivo' ? 'selected' : '' }}>Inactivo (En espera)</option>
                                         <option value="cerrado" {{ old('estado', $grupoMateria->estado) == 'cerrado' ? 'selected' : '' }}>Cerrado (Finalizado)</option>
@@ -187,7 +191,8 @@
 
                         {{-- Botones de Acción --}}
                         <div class="mt-8 flex justify-end space-x-4 border-t border-gray-700 pt-6">
-                            <a href="{{ route('grupo_materia.show', $grupoMateria) }}" 
+                            {{-- ✅ CORRECCIÓN B: Aplicar la sintaxis explícita también al enlace Cancelar por consistencia --}}
+                           <a href="{{ route('grupo_materia.show', ['grupo_materia' => $grupoMateria]) }}"
                                class="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-gray-600 rounded-md hover:bg-gray-600 transition duration-150">
                                 Cancelar
                             </a>

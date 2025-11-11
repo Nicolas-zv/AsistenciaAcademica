@@ -20,7 +20,7 @@
             <x-app.sidebar-link route="grupo_materia.index" icon='<i class="fa-solid fa-layer-group"></i>' label="Grupo-Materia" /> 
             <x-app.sidebar-link route="horarios.index" icon='<i class="fa-solid fa-calendar-days"></i>' label="Horarios" />
             <x-app.sidebar-link route="asistencias.index" icon='<i class="fa-solid fa-clock"></i>' label="Asistencias" />
-            
+            <x-app.sidebar-link route="reportes.index" icon='<i class="fa-solid fa-chart-bar"></i>' label="Reportes Generales" />
         </ul>
     </div>
 

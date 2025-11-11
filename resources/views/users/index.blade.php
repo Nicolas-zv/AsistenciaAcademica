@@ -1,6 +1,5 @@
 {{-- resources/views/users/index.blade.php (ADAPTADO) --}}
 
-{{-- 1. Usa el componente de layout de Breeze --}}
 <x-app-layout>
     
     {{-- 2. Define el encabezado de la página (slot 'header') --}}
@@ -36,60 +35,65 @@
 
                 {{-- Tabla de Usuarios --}}
                 <div class="bg-white dark:bg-gray-800 shadow-xl rounded-lg overflow-hidden border border-gray-700 dark:border-gray-700">
-                    <table class="min-w-full leading-normal text-gray-900 dark:text-white">
-                        <thead>
-                            <tr class="text-left text-gray-600 dark:text-gray-400 border-b border-gray-700 dark:border-gray-700 bg-gray-100 dark:bg-gray-700/50">
-                                <th class="px-5 py-3 text-xs font-semibold uppercase tracking-wider">Nombre</th>
-                                <th class="px-5 py-3 text-xs font-semibold uppercase tracking-wider">Correo</th>
-                                <th class="px-5 py-3 text-xs font-semibold uppercase tracking-wider">Rol</th>
-                                <th class="px-5 py-3 text-xs font-semibold uppercase tracking-wider">Estado</th>
-                                <th class="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-center">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($users as $user)
-                                <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-100">
-                                    <td class="px-5 py-4 text-sm">{{ $user->nombre }}</td>
-                                    <td class="px-5 py-4 text-sm">{{ $user->correo }}</td>
-                                    <td class="px-5 py-4 text-sm">
-                                        <span class="p-1 rounded-md bg-indigo-900 dark:bg-indigo-900 text-indigo-200 text-xs font-medium">
-                                            {{ $user->role->nombre ?? 'Sin Rol' }}
-                                        </span>
-                                    </td>
-                                    <td class="px-5 py-4 text-sm">
-                                        <span class="p-1 rounded-md text-white text-xs font-semibold {{ $user->activo ? 'bg-green-600 dark:bg-green-700' : 'bg-red-600 dark:bg-red-700' }}">
-                                            {{ $user->activo ? 'Activo' : 'Inactivo' }}
-                                        </span>
-                                    </td>
-                                    <td class="px-5 py-4 text-sm flex space-x-3 justify-center items-center">
-                                        
-                                        {{-- Editar --}}
-                                        <a href="{{ route('users.edit', $user) }}" 
-                                           class="text-sm font-medium text-yellow-600 hover:text-yellow-500 dark:text-yellow-400 dark:hover:text-yellow-300">
-                                            Editar
-                                        </a>
+                    
+                    {{-- ✅ APLICACIÓN DEL SCROLL HORIZONTAL --}}
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full leading-normal text-gray-900 dark:text-white">
+                            <thead>
+                                <tr class="text-left text-gray-600 dark:text-gray-400 border-b border-gray-700 dark:border-gray-700 bg-gray-100 dark:bg-gray-700/50">
+                                    <th class="px-5 py-3 text-xs font-semibold uppercase tracking-wider">Nombre</th>
+                                    <th class="px-5 py-3 text-xs font-semibold uppercase tracking-wider">Correo</th>
+                                    <th class="px-5 py-3 text-xs font-semibold uppercase tracking-wider">Rol</th>
+                                    <th class="px-5 py-3 text-xs font-semibold uppercase tracking-wider">Estado</th>
+                                    <th class="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($users as $user)
+                                    <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-100">
+                                        <td class="px-5 py-4 text-sm">{{ $user->nombre }}</td>
+                                        <td class="px-5 py-4 text-sm">{{ $user->correo }}</td>
+                                        <td class="px-5 py-4 text-sm">
+                                            <span class="p-1 rounded-md bg-indigo-900 dark:bg-indigo-900 text-indigo-200 text-xs font-medium">
+                                                {{ $user->role->nombre ?? 'Sin Rol' }}
+                                            </span>
+                                        </td>
+                                        <td class="px-5 py-4 text-sm">
+                                            <span class="p-1 rounded-md text-white text-xs font-semibold {{ $user->activo ? 'bg-green-600 dark:bg-green-700' : 'bg-red-600 dark:bg-red-700' }}">
+                                                {{ $user->activo ? 'Activo' : 'Inactivo' }}
+                                            </span>
+                                        </td>
+                                        {{-- ✅ APLICACIÓN DE whitespace-nowrap --}}
+                                        <td class="px-5 py-4 text-sm flex space-x-3 justify-center items-center whitespace-nowrap"> 
+                                            
+                                            {{-- Editar --}}
+                                            <a href="{{ route('users.edit', $user) }}" 
+                                               class="text-sm font-medium text-yellow-600 hover:text-yellow-500 dark:text-yellow-400 dark:hover:text-yellow-300">
+                                                Editar
+                                            </a>
 
-                                        {{-- Eliminar --}}
-                                        <form action="{{ route('users.destroy', $user) }}" method="POST" 
-                                              onsubmit="return confirm('¿Seguro que deseas eliminar a {{ $user->nombre }}?');" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" 
-                                                    class="text-sm font-medium text-red-600 hover:text-red-500 dark:text-red-500 dark:hover:text-red-400">
-                                                Eliminar
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr class="border-b border-gray-700 dark:border-gray-700">
-                                    <td colspan="5" class="px-5 py-5 text-sm text-gray-500 dark:text-gray-400 text-center">
-                                        No se encontraron usuarios.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                            {{-- Eliminar --}}
+                                            <form action="{{ route('users.destroy', $user) }}" method="POST" 
+                                                  onsubmit="return confirm('¿Seguro que deseas eliminar a {{ $user->nombre }}?');" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" 
+                                                        class="text-sm font-medium text-red-600 hover:text-red-500 dark:text-red-500 dark:hover:text-red-400">
+                                                    Eliminar
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr class="border-b border-gray-700 dark:border-gray-700">
+                                        <td colspan="5" class="px-5 py-5 text-sm text-gray-500 dark:text-gray-400 text-center">
+                                            No se encontraron usuarios.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div> {{-- CIERRE DEL SCROLL HORIZONTAL --}}
                     
                     {{-- Paginación --}}
                     @if (method_exists($users, 'links'))

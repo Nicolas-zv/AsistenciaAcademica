@@ -1,6 +1,5 @@
-{{-- resources/views/grupo_materia/index.blade.php (ADAPTADO) --}}
+{{-- resources/views/grupo_materia/index.blade.php --}}
 
-{{-- 1. Usa el componente de layout de Breeze --}}
 <x-app-layout>
     
     {{-- 2. Define el encabezado de la página (slot 'header') --}}
@@ -15,13 +14,9 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="p-4 sm:p-8">
 
-                {{-- Encabezado y Botón de Creación --}}
-                {{-- <div class="flex justify-between items-center mb-6 border-b border-gray-700 dark:border-gray-700 pb-3"> --}}
-                    <h1 class="text-3xl font-extrabold text-indigo-400 mb-6 border-b border-gray-700 pb-3">
-                        Grupos Asignados
-                    </h1>
-
-                {{-- </div> --}}
+                <h1 class="text-3xl font-extrabold text-indigo-400 mb-6 border-b border-gray-700 pb-3">
+                    Grupos Asignados
+                </h1>
 
                 {{-- Mensajes de Sesión (Success/Éxito) --}}
                 @if (session('success'))
@@ -29,12 +24,14 @@
                         {{ session('success') }}
                     </div>
                 @endif
+                
                 <div class="flex justify-end mb-6">
                     <a href="{{ route('grupo_materia.create') }}" 
                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition duration-150 shadow-md">
                         <i class="fa-solid fa-plus mr-2"></i> Nueva Asignación
                     </a>
                 </div>
+                
                 {{-- Tabla de Asignaciones --}}
                 <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700 dark:border-gray-700 overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-700 dark:divide-gray-700">
@@ -63,7 +60,7 @@
                                     
                                     {{-- Celda de Docente --}}
                                     <td class="px-6 py-4 text-sm text-yellow-500 dark:text-yellow-300 hidden md:table-cell">
-                                        {{ $gm->docente->nombre_completo ?? 'PENDIENTE' }} 
+                                       {{ $gm->docente?->user?->nombre ?? 'PENDIENTE' }}
                                     </td>
                                     
                                     <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 hidden md:table-cell">
@@ -86,24 +83,28 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
                                         <div class="flex justify-center space-x-2">
-                                            {{-- Ver --}}
-                                            <a href="{{ route('grupo_materia.show', $gm) }}" 
-                                                    class="text-xs font-semibold text-sky-400 hover:text-sky-300">
-                                                    <span class="p-2 rounded-full hover:bg-sky-900/50">Ver</span>
-                                            </a>
-                                            {{-- Editar --}}
-                                            <a href="{{ route('grupo_materia.edit', $gm) }}" 
-                                                    class="text-xs font-semibold text-yellow-400 hover:text-yellow-300">
-                                                    <span class="p-2 rounded-full hover:bg-yellow-900/50">Editar</span>
+                                            {{-- Ver (CORREGIDO) --}}
+                                            <a href="{{ route('grupo_materia.show', ['grupo_materia' => $gm]) }}"
+                                                class="text-xs font-semibold text-sky-400 hover:text-sky-300">
+                                                <span class="p-2 rounded-full hover:bg-sky-900/50">Ver</span>
                                             </a>
                                             
-                                            {{-- Eliminar --}}
-                                            <form action="{{ route('grupo_materia.destroy', $gm) }}" method="POST" onsubmit="return confirm('¿Está seguro de querer eliminar esta asignación?');" class="inline">
+                                            {{-- Editar (CORREGIDO) --}}
+                                            <a href="{{ route('grupo_materia.edit', ['grupo_materia' => $gm]) }}"
+                                                class="text-xs font-semibold text-yellow-400 hover:text-yellow-300">
+                                                <span class="p-2 rounded-full hover:bg-yellow-900/50">Editar</span>
+                                            </a>
+                                            
+                                            {{-- Eliminar (CORREGIDO) --}}
+                                            <form method="POST" action="{{ route('grupo_materia.destroy', ['grupo_materia' => $gm]) }}" 
+                                                onsubmit="return confirm('¿Está seguro de que desea eliminar esta asignación?');" 
+                                                class="inline">
+                                                
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" 
-                                                    class="text-xs font-semibold text-red-500 hover:text-red-400">
-                                                    <span class="p-2 rounded-full hover:bg-red-900/50">Eliminar</span>
+
+                                                <button type="submit" class="px-3 py-1 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition duration-150">
+                                                    Eliminar
                                                 </button>
                                             </form>
                                         </div>
@@ -122,4 +123,4 @@
             </div>
         </div>
     </div>
-</x-app-layout> 
+</x-app-layout>

@@ -122,7 +122,7 @@
                         <div class="mt-6">
                             <label for="observacion" class="block text-sm font-medium text-gray-300 mb-1">Observación (Máx. 500 caracteres)</label>
                             <textarea name="observacion" id="observacion" rows="3"
-                                      class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-indigo-500 focus:border-indigo-500">{{ old('observacion') }}</textarea>
+                                    class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-indigo-500 focus:border-indigo-500">{{ old('observacion') }}</textarea>
                         </div>
                         
                         <div class="flex justify-end mt-8 space-x-4">

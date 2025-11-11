@@ -16,6 +16,8 @@ use App\Http\Controllers\AulaController;
 use App\Http\Controllers\GrupoMateriaController;
 use App\Http\Controllers\HorarioController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ReporteController;
+
 // ... otras importaciones
 
 Route::get('/', function () {
@@ -35,6 +37,15 @@ Route::get('/', function () {
     Route::get('/dashboard', [DashboardController::class, 'index']) // <--- Corregido para usar el controlador
         ->middleware('verified')->name('dashboard');
 
+    // Rutas para Reportes Generales (CU15)
+  
+
+
+    Route::patch('reportes/{asistencia}/status', [ReporteController::class, 'updateStatus'])
+    ->name('reportes.updateStatus');
+        Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
+    Route::get('/reportes/generar', [ReporteController::class, 'generate'])->name('reportes.generate');
+    Route::get('/reportes/exportar/pdf', [ReporteController::class, 'exportPdf'])->name('reportes.export.pdf');
     Route::resource('aulas', AulaController::class);
     Route::resource('modulos', ModuloController::class);
     Route::resource('gestion', GestionController::class);
@@ -44,10 +55,18 @@ Route::get('/', function () {
     Route::resource('permisos', PermisoController::class);
     Route::resource('users', UserController::class);
     Route::resource('roles', RoleController::class);  
-    Route::resource('grupo_materia', GrupoMateriaController::class);
+    Route::resource('grupo_materia', GrupoMateriaController::class)
+        ->parameters([
+            'grupo_materia' => 'grupo_materia',
+        ]);
     Route::resource('horarios', HorarioController::class);
-        // 2. CRUD DE ASISTENCIAS
-        Route::resource('asistencias', AsistenciaController::class);
+
+    Route::get('/asistencias/{asistencia}/justificar', [AsistenciaController::class, 'showJustificationForm'])
+    ->name('asistencias.justificar.show');
+    Route::put('/asistencias/{asistencia}/justificar', [AsistenciaController::class, 'justify'])
+    ->name('asistencias.justificar.update');
+            // 2. CRUD DE ASISTENCIAS
+    Route::resource('asistencias', AsistenciaController::class);
     Route::resource('docentes', DocenteController::class);
     // 3. PERFIL DE USUARIO
     // ... (Rutas de ProfileController)

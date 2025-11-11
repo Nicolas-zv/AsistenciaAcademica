@@ -1,16 +1,13 @@
-{{-- resources/views/grupo_materia/show.blade.php (ADAPTADO) --}}
+{{-- resources/views/grupo_materia/show.blade.php (CORREGIDO) --}}
 
-{{-- 1. Usa el componente de layout de Breeze --}}
 <x-app-layout>
     
-    {{-- 2. Define el encabezado de la página (slot 'header') --}}
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             Detalle de Asignación
         </h2>
     </x-slot>
 
-    {{-- 3. Contenido Principal (dentro de un contenedor de Tailwind) --}}
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="p-4 sm:p-8">
@@ -21,17 +18,27 @@
 
                 <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700 dark:border-gray-700 max-w-4xl mx-auto">
                     
-                    {{-- Botones de Acción --}}
-                    <div class="flex justify-end space-x-3 mb-8">
-                        <a href="{{ route('grupo_materia.edit', $grupoMateria) }}" 
-                           class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-yellow-600 rounded-md hover:bg-yellow-700 transition duration-150 shadow-md">
-                            <i class="fa-solid fa-pen-to-square mr-2"></i> **Editar Asignación**
-                        </a>
-                        <a href="{{ route('grupo_materia.index') }}" 
-                           class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-300 dark:text-gray-300 bg-gray-700 border border-gray-600 rounded-md hover:bg-gray-600 transition duration-150">
-                            <i class="fa-solid fa-arrow-left mr-2"></i> Volver a Asignaciones
-                        </a>
-                    </div>
+                    {{-- Botones de Acción (BLOQUE CORREGIDO) --}}
+                <div class="flex justify-end space-x-3 mb-8">
+    
+    @if (!empty($grupoMateria) && $grupoMateria->id)
+        {{-- USAR ENLACE MANUAL: Evitamos la función route() para anular el error del parámetro --}}
+        <a href="/grupo_materia/{{ $grupoMateria->id }}/edit" 
+           class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-yellow-600 rounded-md hover:bg-yellow-700 transition duration-150 shadow-md">
+            <i class="fa-solid fa-pen-to-square mr-2"></i> **Editar Asignación**
+        </a>
+    @else
+        {{-- Mensaje de error si la variable es nula --}}
+        <span class="text-sm font-medium text-red-500 bg-red-900/50 p-2 rounded">
+            ⛔ Error: ID de Asignación no cargado. Verifique la URL.
+        </span>
+    @endif
+
+    <a href="{{ route('grupo_materia.index') }}" 
+       class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-300 dark:text-gray-300 bg-gray-700 border border-gray-600 rounded-md hover:bg-gray-600 transition duration-150">
+        <i class="fa-solid fa-arrow-left mr-2"></i> Volver a Asignaciones
+    </a>
+</div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         
@@ -39,11 +46,11 @@
                         <div class="space-y-4">
                             <h2 class="text-xl font-bold text-gray-300 dark:text-gray-300 border-b border-gray-700 dark:border-gray-700 pb-2 mb-3">Datos Académicos</h2>
                             
-                            {{-- Detalle: Docente Asignado (AÑADIDO) --}}
+                            {{-- Detalle: Docente Asignado --}}
                             <div class="flex items-start">
                                 <p class="w-1/3 text-sm font-medium text-green-400">Docente:</p>
                                 <p class="w-2/3 text-base text-yellow-300 dark:text-yellow-300 font-bold">
-                                    {{ $grupoMateria->docente->nombre_completo ?? 'PENDIENTE DE ASIGNACIÓN' }}
+                                   {{ $grupoMateria->docente?->user?->nombre ?? 'PENDIENTE DE ASIGNACIÓN' }}
                                 </p>
                             </div>
                             
@@ -133,9 +140,10 @@
                     </div>
 
                     {{-- Metadatos --}}
+                    {{-- Metadatos Corregidos para evitar 'Call to a member function isoFormat() on null' --}}
                     <div class="mt-10 pt-4 border-t border-gray-700 dark:border-gray-700 text-xs text-gray-500">
-                        <p>Registro Creado: **{{ $grupoMateria->created_at->isoFormat('D MMMM YYYY, h:mm a') }}** ({{ $grupoMateria->created_at->diffForHumans() }})</p>
-                        <p>Última Actualización: **{{ $grupoMateria->updated_at->isoFormat('D MMMM YYYY, h:mm a') }}** ({{ $grupoMateria->updated_at->diffForHumans() }})</p>
+                        <p>Registro Creado: **{{ $grupoMateria->created_at?->isoFormat('D MMMM YYYY, h:mm a') ?? 'Fecha no disponible' }}** ({{ $grupoMateria->created_at?->diffForHumans() ?? 'N/A' }})</p>
+                        <p>Última Actualización: **{{ $grupoMateria->updated_at?->isoFormat('D MMMM YYYY, h:mm a') ?? 'Fecha no disponible' }}** ({{ $grupoMateria->updated_at?->diffForHumans() ?? 'N/A' }})</p>
                     </div>
                     
                 </div>

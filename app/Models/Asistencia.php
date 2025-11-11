@@ -22,10 +22,15 @@ class Asistencia extends Model
         'observacion',
         'tipo_registro',
         'registrado_por',
+
+        'justificada',
+        'motivo_justificacion',
+        'aprobado_por',
     ];
 
     protected $casts = [
         'fecha' => 'date',
+        'justificada' => 'boolean',
     ];
 
     // --- Relaciones ---
@@ -63,6 +68,10 @@ class Asistencia extends Model
         return $this->belongsTo(\App\Models\User::class, 'registrado_por');
     }
 
+    public function aprobador()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'aprobado_por');
+    }
     // --- Accessors/Mutators ---
 
     /**

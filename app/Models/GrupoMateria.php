@@ -4,12 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Docente; // Asegúrate de importar todos los modelos relacionados
 
 class GrupoMateria extends Model
 {
     use HasFactory;
 
-    protected $table = 'grupo_materia'; // Nombre explícito de la tabla
+    // Nombre explícito de la tabla para evitar el problema de pluralización automática
+    protected $table = 'grupo_materia'; 
+
+    // Propiedad para cargar automáticamente las relaciones necesarias 
+    // (Útil para evitar el problema N+1 en vistas comunes como index y edit)
+    protected $with = ['materia', 'grupo', 'gestion', 'aula', 'modulo', 'docente'];
 
     protected $fillable = [
         'materia_id',
@@ -17,11 +23,14 @@ class GrupoMateria extends Model
         'gestion_id',
         'aula_id',
         'modulo_id',
+        'docente_id', // Clave foránea correcta (user_id del docente)
         'turno',
         'cupo',
         'estado',
     ];
 
+    // Se asume que estos modelos existen en App\Models
+    
     /**
      * Define la relación: Pertenece a una Materia.
      */
@@ -43,7 +52,6 @@ class GrupoMateria extends Model
      */
     public function gestion()
     {
-        // Nota: Asegúrate de que tu modelo Gestion se llame 'Gestion' o ajusta esta línea.
         return $this->belongsTo(Gestion::class);
     }
 
@@ -62,8 +70,29 @@ class GrupoMateria extends Model
     {
         return $this->belongsTo(Modulo::class);
     }
+    
+    /**
+     * Define la relación: Pertenece a un Docente.
+     * Usamos 'docente_id' como clave foránea, pero Laravel la resuelve
+     * asumiendo que es una FK al campo ID del modelo Docente. Si 'docente_id'
+     * apunta al campo 'user_id' (email) del modelo Docente, podría ser necesario
+     * especificar la clave de referencia.
+     * * Dado que el error no es aquí, asumiremos que Laravel resuelve la
+     * relación correctamente, o que el DocenteController está cargando
+     * correctamente los datos del docente.
+     */
     public function docente()
     {
-        return $this->belongsTo(Docente::class, 'docente_id');
+        // Si docente_id en grupo_materia es un string (user_id/email) y apunta
+        // a 'user_id' en la tabla 'docentes', el código es:
+        // return $this->belongsTo(Docente::class, 'docente_id', 'user_id'); 
+
+        // Mantenemos la forma simple, que es la que tenías:
+        return $this->belongsTo(Docente::class, 'docente_id','user_id'); 
     }
+    
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 }

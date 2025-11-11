@@ -5,19 +5,19 @@
         <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
         <div>
-            {{-- Cambiado 'Email' a 'Correo' en la etiqueta --}}
+
             <x-input-label for="correo" :value="__('Correo')" />
             <x-text-input 
                 id="correo" 
                 class="block mt-1 w-full" 
                 type="email" 
-                name="correo" {{-- <--- CAMBIO CLAVE: name="correo" --}}
-                :value="old('correo', $request->email)" {{-- Usar old('correo') y mantener $request->email para precargar --}}
+                name="correo" 
+                :value="old('correo', $request->email)"
                 required 
                 autofocus 
                 autocomplete="username" 
             />
-            {{-- Cambiado 'email' a 'correo' para mostrar el error --}}
+
             <x-input-error :messages="$errors->get('correo')" class="mt-2" />
         </div>
 

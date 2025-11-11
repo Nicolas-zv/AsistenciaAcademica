@@ -24,7 +24,7 @@
                         {{-- Docente --}}
                         <div class="border-b border-gray-700 pb-2">
                             <p class="text-sm font-medium text-gray-400">Docente</p>
-                            <p class="text-white text-lg font-semibold">{{ optional(optional($asistencia->docente)->user)->name ?? 'N/A' }}</p>
+                            <p class="text-white text-lg font-semibold">{{ optional(optional($asistencia->docente)->user)->nombre ?? 'N/A' }}</p>
                         </div>
 
                         {{-- Estado --}}

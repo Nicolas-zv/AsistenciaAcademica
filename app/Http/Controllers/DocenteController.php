@@ -27,11 +27,15 @@ class DocenteController extends Controller
     public function create()
     {
         // Obtiene usuarios que NO tienen un perfil docente
-        $usuariosDisponibles = User::whereDoesntHave('docente')
-                                   ->orderBy('nombre')
-                                   ->get();
+       // Obtener los user_id (correos) de los docentes ya creados
+    $docentesExistentesUserIds = Docente::pluck('user_id')->toArray();
 
-        return view('docentes.create', compact('usuariosDisponibles'));
+    // Obtener solo los usuarios que NO están en la lista de docentes existentes
+    $usuariosDisponibles = User::whereNotIn('correo', $docentesExistentesUserIds)
+                                ->orderBy('nombre')
+                                ->get();
+
+    return view('docentes.create', compact('usuariosDisponibles'));
     }
 
     /**

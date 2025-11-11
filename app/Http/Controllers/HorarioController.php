@@ -9,15 +9,12 @@ use Illuminate\Validation\Rule;
 
 class HorarioController extends Controller
 {
-    // Define los días de la semana
+
     private $dias = [
         1 => 'Lunes', 2 => 'Martes', 3 => 'Miércoles', 4 => 'Jueves', 
         5 => 'Viernes', 6 => 'Sábado', 0 => 'Domingo'
     ];
 
-    /**
-     * Muestra una lista del recurso.
-     */
     public function index()
     {
         // Carga la relación grupoMateria y sus subrelaciones para mostrar la información completa
@@ -33,10 +30,6 @@ class HorarioController extends Controller
 
         return view('horarios.index', compact('horarios'));
     }
-
-    /**
-     * Muestra el formulario para crear un nuevo recurso.
-     */
     public function create()
     {
         $dias = $this->dias;
@@ -55,9 +48,6 @@ class HorarioController extends Controller
     }
 
     /**
-     * Almacena un recurso recién creado en el almacenamiento.
-     */
-/**
      * Almacena un recurso recién creado en el almacenamiento.
      */
     public function store(Request $request)
@@ -87,17 +77,11 @@ class HorarioController extends Controller
                          ->with('success', 'El horario ha sido creado exitosamente.');
     }
 
-    /**
-     * Muestra el recurso especificado.
-     */
     public function show(Horario $horario)
     {
         return view('horarios.show', compact('horario'));
     }
 
-    /**
-     * Muestra el formulario para editar el recurso especificado.
-     */
     public function edit(Horario $horario)
     {
         $dias = $this->dias;
@@ -114,12 +98,6 @@ class HorarioController extends Controller
         return view('horarios.edit', compact('horario', 'grupoMaterias', 'dias'));
     }
 
-    /**
-     * Actualiza el recurso especificado en el almacenamiento.
-     */
-    /**
-     * Actualiza el recurso especificado en el almacenamiento.
-     */
     public function update(Request $request, Horario $horario)
     {
         $validatedData = $request->validate([
@@ -159,13 +137,6 @@ class HorarioController extends Controller
     }
     /**
      * Verifica si existe una colisión de horario (aula o docente)
-     * @param int $dia El día de la semana (Lunes=1, etc.)
-     * @param string $inicio Hora de inicio 'H:i'
-     * @param string $fin Hora de fin 'H:i'
-     * @param int|null $aulaId ID del aula a verificar
-     * @param int|null $docenteId ID del docente a verificar
-     * @param int|null $exceptId ID del horario actual a ignorar (para el update)
-     * @throws \Illuminate\Validation\ValidationException
      */
     private function checkCollision($dia, $inicio, $fin, $aulaId = null, $docenteId = null, $exceptId = null)
     {
