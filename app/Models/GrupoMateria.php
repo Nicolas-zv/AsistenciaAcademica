@@ -11,9 +11,9 @@ class GrupoMateria extends Model
     use HasFactory;
 
     // Nombre explícito de la tabla para evitar el problema de pluralización automática
-    protected $table = 'grupo_materia'; 
+    protected $table = 'grupo_materia';
 
-    // Propiedad para cargar automáticamente las relaciones necesarias 
+    // Propiedad para cargar automáticamente las relaciones necesarias
     // (Útil para evitar el problema N+1 en vistas comunes como index y edit)
     protected $with = ['materia', 'grupo', 'gestion', 'aula', 'modulo', 'docente'];
 
@@ -30,7 +30,7 @@ class GrupoMateria extends Model
     ];
 
     // Se asume que estos modelos existen en App\Models
-    
+
     /**
      * Define la relación: Pertenece a una Materia.
      */
@@ -70,7 +70,7 @@ class GrupoMateria extends Model
     {
         return $this->belongsTo(Modulo::class);
     }
-    
+
     /**
      * Define la relación: Pertenece a un Docente.
      * Usamos 'docente_id' como clave foránea, pero Laravel la resuelve
@@ -83,14 +83,10 @@ class GrupoMateria extends Model
      */
     public function docente()
     {
-        // Si docente_id en grupo_materia es un string (user_id/email) y apunta
-        // a 'user_id' en la tabla 'docentes', el código es:
-        // return $this->belongsTo(Docente::class, 'docente_id', 'user_id'); 
-
-        // Mantenemos la forma simple, que es la que tenías:
-        return $this->belongsTo(Docente::class, 'docente_id','user_id'); 
+        return $this->belongsTo(Docente::class, 'docente_id', 'id');
     }
-    
+
+
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

@@ -1,7 +1,7 @@
 {{-- resources/views/grupo_materia/index.blade.php --}}
 
 <x-app-layout>
-    
+
     {{-- 2. Define el encabezado de la página (slot 'header') --}}
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -24,61 +24,81 @@
                         {{ session('success') }}
                     </div>
                 @endif
-                
+
                 <div class="flex justify-end mb-6">
-                    <a href="{{ route('grupo_materia.create') }}" 
-                       class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition duration-150 shadow-md">
+                    <a href="{{ route('grupo_materia.create') }}"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition duration-150 shadow-md">
                         <i class="fa-solid fa-plus mr-2"></i> Nueva Asignación
                     </a>
                 </div>
-                
+
                 {{-- Tabla de Asignaciones --}}
-                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700 dark:border-gray-700 overflow-x-auto">
+                <div
+                    class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700 dark:border-gray-700 overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-700 dark:divide-gray-700">
                         <thead>
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Materia (Grupo)</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider hidden sm:table-cell">Gestión</th>
-                                
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider hidden md:table-cell">Docente</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                    Materia (Grupo)</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider hidden sm:table-cell">
+                                    Gestión</th>
 
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider hidden md:table-cell">Ubicación</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Cupo / Turno</th>
-                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">Acciones</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider hidden md:table-cell">
+                                    Docente</th>
+
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider hidden md:table-cell">
+                                    Ubicación</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                    Cupo / Turno</th>
+                                <th
+                                    class="px-6 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                    Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-800 dark:divide-gray-800">
                             @forelse ($grupoMaterias as $gm)
                                 <tr class="hover:bg-gray-700/50 transition duration-150">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 dark:text-white">
-                                        {{ $gm->materia->nombre ?? 'N/A' }} 
-                                        <span class="text-indigo-400 block font-normal text-xs">({{ $gm->materia->sigla ?? 'N/A' }}) - {{ $gm->grupo->nombre ?? 'N/A' }}</span>
+                                    <td
+                                        class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 dark:text-white">
+                                        {{ $gm->materia->nombre ?? 'N/A' }}
+                                        <span
+                                            class="text-indigo-400 block font-normal text-xs">({{ $gm->materia->sigla ?? 'N/A' }})
+                                            - {{ $gm->grupo->nombre ?? 'N/A' }}</span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 hidden sm:table-cell">
+                                    <td
+                                        class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 hidden sm:table-cell">
                                         {{ $gm->gestion->año ?? 'N/A' }} - {{ $gm->gestion->semestre ?? 'N/A' }}
                                     </td>
-                                    
+
                                     {{-- Celda de Docente --}}
-                                    <td class="px-6 py-4 text-sm text-yellow-500 dark:text-yellow-300 hidden md:table-cell">
-                                       {{ $gm->docente?->user?->nombre ?? 'PENDIENTE' }}
+                                    <td
+                                        class="px-6 py-4 text-sm text-yellow-500 dark:text-yellow-300 hidden md:table-cell">
+                                        {{ $gm->docente?->user?->nombre ?? 'PENDIENTE' }}
                                     </td>
-                                    
+
+
                                     <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 hidden md:table-cell">
-                                        <span class="text-indigo-500">{{ $gm->aula->numero ?? 'Sin Aula' }}</span> / 
+                                        <span class="text-indigo-500">{{ $gm->aula->numero ?? 'Sin Aula' }}</span> /
                                         <span class="text-gray-500">{{ $gm->modulo->codigo ?? 'Sin Módulo' }}</span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <span class="text-yellow-500">{{ $gm->cupo ?? 'N/A' }}</span> <span class="text-gray-500 text-xs">cupos</span>
-                                        <span class="block text-gray-400 text-xs">{{ $gm->turno ?? 'Sin Turno' }}</span>
+                                        <span class="text-yellow-500">{{ $gm->cupo ?? 'N/A' }}</span> <span
+                                            class="text-gray-500 text-xs">cupos</span>
+                                        <span
+                                            class="block text-gray-400 text-xs">{{ $gm->turno ?? 'Sin Turno' }}</span>
                                         {{-- Indicador de estado --}}
-                                        <span class="block text-xs uppercase font-bold 
-                                            @if ($gm->estado == 'activo') 
-                                                text-green-500 
+                                        <span
+                                            class="block text-xs uppercase font-bold
+                                            @if ($gm->estado == 'activo') text-green-500
                                             @elseif ($gm->estado == 'cerrado')
                                                 text-red-500
                                             @else
-                                                text-sky-500
-                                            @endif
+                                                text-sky-500 @endif
                                         ">{{ $gm->estado }}</span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
@@ -88,22 +108,24 @@
                                                 class="text-xs font-semibold text-sky-400 hover:text-sky-300">
                                                 <span class="p-2 rounded-full hover:bg-sky-900/50">Ver</span>
                                             </a>
-                                            
+
                                             {{-- Editar (CORREGIDO) --}}
                                             <a href="{{ route('grupo_materia.edit', ['grupo_materia' => $gm]) }}"
                                                 class="text-xs font-semibold text-yellow-400 hover:text-yellow-300">
                                                 <span class="p-2 rounded-full hover:bg-yellow-900/50">Editar</span>
                                             </a>
-                                            
+
                                             {{-- Eliminar (CORREGIDO) --}}
-                                            <form method="POST" action="{{ route('grupo_materia.destroy', ['grupo_materia' => $gm]) }}" 
-                                                onsubmit="return confirm('¿Está seguro de que desea eliminar esta asignación?');" 
+                                            <form method="POST"
+                                                action="{{ route('grupo_materia.destroy', ['grupo_materia' => $gm]) }}"
+                                                onsubmit="return confirm('¿Está seguro de que desea eliminar esta asignación?');"
                                                 class="inline">
-                                                
+
                                                 @csrf
                                                 @method('DELETE')
 
-                                                <button type="submit" class="px-3 py-1 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition duration-150">
+                                                <button type="submit"
+                                                    class="px-3 py-1 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition duration-150">
                                                     Eliminar
                                                 </button>
                                             </form>

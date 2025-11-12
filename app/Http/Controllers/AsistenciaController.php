@@ -23,10 +23,10 @@ class AsistenciaController extends Controller
     {
         // 1. Cargar Docentes con su relación 'user' para evitar N+1 y acceder seguro al nombre
         $docentes = Docente::with('user')->get()->mapWithKeys(function ($docente) {
-            
+
             // Asumiendo que 'name' en la tabla 'users' contiene el nombre del docente
-            $nombre = optional($docente->user)->nombre; 
-            
+            $nombre = optional($docente->user)->nombre;
+
             if (!$nombre) {
                 // Si no hay user->name, usa el código o un marcador
                 $nombre = $docente->codigo ? 'Docente Cód: ' . $docente->codigo : 'Docente S/U';
@@ -48,7 +48,7 @@ class AsistenciaController extends Controller
                 $nombre = "{$sigla}-{$grupo} ({$gestion})";
                 return [$gm->id => $nombre];
             })->sort();
-            
+
         // 3. Cargar Horarios con relaciones anidadas (Sin cambios)
         $horarios = Horario::with(['grupoMateria.materia'])
             ->get()
@@ -60,7 +60,7 @@ class AsistenciaController extends Controller
 
                 // Composición final del nombre
                 $nombre = "{$h->dia_nombre} | {$h->hora_inicio} - {$h->hora_fin} ({$sigla})";
-                
+
                 return [$h->id => $nombre];
             })->sort();
 
@@ -111,16 +111,16 @@ class AsistenciaController extends Controller
 
         // Usaremos $data en lugar de $validatedData para modificar el estado y las claves
         $data = $validatedData;
-        
+
         // 2. Lógica de validación de CU13
-        
+
         // A. Validar Día y Unicidad con Horario
         $horario = Horario::find($data['horario_id']);
 
         if (!$horario) {
             return back()->withErrors(['horario_id' => 'El horario seleccionado no es válido.'])->withInput();
         }
-        
+
         $fechaAsistencia = Carbon::parse($data['fecha']);
         // 2.1. Validar que el día de la semana coincida
         if ($fechaAsistencia->dayOfWeek !== $horario->dia) {
@@ -128,7 +128,7 @@ class AsistenciaController extends Controller
                 'fecha' => 'La fecha seleccionada no corresponde al día de la semana programado para este horario (' . $horario->dia_nombre . ').'
             ])->withInput();
         }
-        
+
         // 2.2. Validar Unicidad (mismo docente, grupo, horario y fecha)
         $existe = Asistencia::where('docente_id', $data['docente_id'])
                             ->where('grupo_materia_id', $data['grupo_materia_id'])
@@ -141,13 +141,13 @@ class AsistenciaController extends Controller
                 'general' => 'Ya existe un registro de asistencia para este docente, materia y horario en la fecha seleccionada.'
             ])->withInput();
         }
-        
+
         // 3. Lógica de Estado Automático: "Tarde"
-        
+
         $horaAsistencia = Carbon::parse($data['hora']);
         $horaInicio = Carbon::parse($horario->hora_inicio);
         $toleranciaMinutos = 10; // Definimos la tolerancia de 10 minutos
-        
+
         // Si la hora de asistencia es posterior a la hora de inicio + tolerancia
         if ($horaAsistencia->greaterThan($horaInicio->addMinutes($toleranciaMinutos))) {
             // Solo si el estado enviado era 'presente', lo cambiamos a 'tarde'
@@ -205,7 +205,7 @@ class AsistenciaController extends Controller
             'observacion' => 'nullable|string|max:500',
             'tipo_registro' => ['nullable', 'string', Rule::in(['manual', 'qr', 'codigo'])],
         ]);
-        
+
         $data = $validatedData;
 
         // 2. Lógica de validación de CU13
@@ -216,7 +216,7 @@ class AsistenciaController extends Controller
         if (!$horario) {
             return back()->withErrors(['horario_id' => 'El horario seleccionado no es válido.'])->withInput();
         }
-        
+
         $fechaAsistencia = Carbon::parse($data['fecha']);
         // 2.1. Validar que el día de la semana coincida
         if ($fechaAsistencia->dayOfWeek !== $horario->dia) {
@@ -224,7 +224,7 @@ class AsistenciaController extends Controller
                 'fecha' => 'La fecha seleccionada no corresponde al día de la semana programado para este horario (' . $horario->dia_nombre . ').'
             ])->withInput();
         }
-        
+
         // 2.2. Validar Unicidad (mismo docente, grupo, horario y fecha) - IGNORANDO EL REGISTRO ACTUAL
         $existe = Asistencia::where('docente_id', $data['docente_id'])
                             ->where('grupo_materia_id', $data['grupo_materia_id'])
@@ -240,11 +240,11 @@ class AsistenciaController extends Controller
         }
 
         // 3. Lógica de Estado Automático: "Tarde" (misma lógica que en store)
-        
+
         $horaAsistencia = Carbon::parse($data['hora']);
         $horaInicio = Carbon::parse($horario->hora_inicio);
         $toleranciaMinutos = 10;
-        
+
         if ($horaAsistencia->greaterThan($horaInicio->addMinutes($toleranciaMinutos))) {
             if ($data['estado'] === 'presente') {
                 $data['estado'] = 'tarde';
@@ -304,7 +304,7 @@ class AsistenciaController extends Controller
             'justificada' => true,
             'motivo_justificacion' => $validated['motivo'],
             // Registrar al usuario logueado (administrador) que aprueba la justificación
-            'aprobado_por' => $request->user()->id, 
+            'aprobado_por' => $request->user()->id,
         ]);
 
         return redirect()->route('asistencias.index')->with('success', 'La inasistencia ha sido justificada y aprobada con éxito.');

@@ -13,8 +13,8 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
-    protected $primaryKey = 'correo'; 
-    public $incrementing = false; 
+    protected $primaryKey = 'correo';
+    public $incrementing = false;
     protected $keyType = 'string';
     // ... (protected $fillable y el resto de propiedades quedan igual)
     protected $fillable = [
@@ -36,9 +36,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
-    
+
     // ... (protected $hidden y protected function casts() quedan igual)
-    
+
     public function docente(): HasOne
     {
        return $this->hasOne(Docente::class, 'user_id', 'correo');
@@ -57,7 +57,7 @@ class User extends Authenticatable
     public function getInitialsAttribute(): string
     {
         $words = explode(' ', $this->nombre);
-        
+
         $initials = '';
         foreach ($words as $word) {
             // Solo toma la primera letra de las dos primeras palabras, si existen
@@ -65,7 +65,7 @@ class User extends Authenticatable
                 $initials .= strtoupper($word[0]);
             }
         }
-        
+
         // Si el nombre es muy corto (ej: "Ana"), aseguramos que al menos haya una inicial.
         return $initials ?: strtoupper(substr($this->nombre, 0, 1));
     }
